@@ -463,6 +463,7 @@
             });
         }
 
+        const timeoutDelay = 50;
         var savedFriends = new Array();
 
         function doFriend(number) {
@@ -505,14 +506,14 @@
                     }
                     setTimeout(() => {
                         doFriend(number + 1);
-                    }, 150);
+                    }, timeoutDelay);
                 },
                 error: function (data) {
                     savedFriends[number].error = true;
                     savedFriends[number].LastAchievement = 0;
                     setTimeout(() => {
                         doFriend(number + 1);
-                    }, 150);
+                    }, timeoutDelay);
                 }
             });
         }
@@ -523,6 +524,7 @@
 
             $("#progress").removeClass('invisible');
             $("#progress").addClass('visible');
+            $("#progress-bar").css({ 'width': '0%' });
 
             savedFriends = friends;
             doFriend(0);
