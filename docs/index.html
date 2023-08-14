@@ -501,7 +501,7 @@
                         if (data.Achievements.List != null) {
                             data.Achievements.List.sort((a, b) => {
                                 return b.Date - a.Date;
-                            });                    
+                            });
                             if (data.Achievements.List.length) {
                                 savedFriends[number].LastAchievement = data.Achievements.List[0].Date;
                                 savedFriends[number].error = false;
@@ -548,6 +548,10 @@
                     html += '    <td>' + new Date(element.LastAchievement * 1000) + '</td>';
                 }
 
+                html += '    <td><button class="btn btn-primary" onclick="openLodestone(\'' + element.ID + '\');">Friends</s></button></td>';
+
+
+
                 html += '</tr>\n';
             });
 
@@ -557,6 +561,12 @@
             $("#search-friends-table").addClass('visible');
         }
 
+        function openLodestone(id) {
+            window.open(
+                'https://eu.finalfantasyxiv.com/lodestone/character/' + id,
+                '_blank'
+            );
+        }
     </script>
 
 </body>
