@@ -482,14 +482,15 @@
                 $("#progress").addClass('invisible');
 
                 savedFriends.sort((a, b) => {
-                    return a.LastAchievement - b.LastAchievement;
+                    return b.LastAchievement - a.LastAchievement;
                 });
 
                 displayFriends(savedFriends);
                 return;
             }
 
-            var url = 'https://xivapi.com/character/' + savedFriends[number].ID + "?data=AC";
+            var url = 'https://xivapi.com/character/' + savedFriends[number].ID + '?data=AC';
+
             $.ajax({
                 type: 'GET',
                 url: url,
@@ -498,6 +499,9 @@
                     savedFriends[number].LastAchievement = 0;
                     if (data.Achievements != null) {
                         if (data.Achievements.List != null) {
+                            data.Achievements.List.sort((a, b) => {
+                                return b.Date - a.Date;
+                            });                    
                             if (data.Achievements.List.length) {
                                 savedFriends[number].LastAchievement = data.Achievements.List[0].Date;
                                 savedFriends[number].error = false;
