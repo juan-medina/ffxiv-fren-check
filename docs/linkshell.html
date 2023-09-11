@@ -93,10 +93,10 @@
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <ul class="navbar-nav me-auto mb-2 mb-md-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/index.html">Friends</a>
+                        <a class="nav-link" aria-current="page" href="/index.html">Friends</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="/linkshell.html">Linkshell</a>
+                        <a class="nav-link active" aria-current="page" href="/linkshell.html">Linkshell</a>
                     </li>
                 </ul>
             </div>
@@ -104,18 +104,18 @@
     </nav>
 
     <main class="container">
-        <b>Enter Your character</b>
+        <b>Enter Cross-World Linkshell Name</b>
         <div class="container">
-            <form action="javascript:searchCharacter();">
+            <form action="javascript:searchLinkshell();">
                 <div class="row">
                     <div class="col">
-                        <input type="text" class="form-control" id="characterName" placeholder="Character name">
+                        <input type="text" class="form-control" id="linkshellName" placeholder="Linkshell name">
                         <div class="invalid-feedback">
-                            Please Provide a Character Name.
+                            Please Provide a Linkshell Name.
                         </div>
                     </div>
                     <div class="col">
-                        <select id="dataCenter" class="form-control" onchange="changeDataCenter();">
+                        <select id="dataCenter" class="form-control">
                             <option selected>Choose Data Center...</option>
                             <option>Aether</option>
                             <option>Crystal</option>
@@ -126,15 +126,6 @@
                         </select>
                         <div class="invalid-feedback">
                             Please Choose a Data Center.
-                        </div>
-                    </div>
-                    <div class="col">
-                        <select id="serverName" class="form-control">
-                            <option selected>Choose Server...</option>
-
-                        </select>
-                        <div class="invalid-feedback">
-                            Please Choose a Server.
                         </div>
                     </div>
                     <div class="col">
@@ -168,9 +159,8 @@
                     <caption>Search Results</caption>
                     <thead>
                         <tr>
-                            <th scope="col">Avatar</th>
                             <th scope="col">Name</th>
-                            <th scope="col">Server</th>
+                            <th scope="col">Datacenter</th>
                             <th scope="col">Actions</th>
                         </tr>
                     </thead>
@@ -288,7 +278,7 @@
             }
         }
 
-        function searchCharacter() {
+        function searchLinkshell() {
             $("#spin").removeClass('invisible');
             $("#spin").addClass('visible');
 
@@ -319,27 +309,20 @@
             }
 
             // get server name
-            var serverName = $('#serverName');
-            serverName.removeClass('is-invalid');
-            var serverNameValue = serverName.find(':selected').text();
-            if (serverNameValue == 'Choose Server...') {
-                serverName.addClass('is-invalid');
-                valid = false;
-            }
-
-            // get character name
-            var characterName = $('#characterName');
-            characterName.removeClass('is-invalid');
-            var characterNameValue = characterName.val();
-            if (characterNameValue == '') {
-                characterName.addClass('is-invalid');
+            var serverNameValue = "_dc_" + dataCenterValue;
+            // get linkshell name
+            var linkshellName = $('#linkshellName');
+            linkshellName.removeClass('is-invalid');
+            var linkshellNameValue = linkshellName.val();
+            if (linkshellNameValue == '') {
+                linkshellName.addClass('is-invalid');
                 valid = false;
                 $("#spin").addClass('invisible');
                 $("#spin").removeClass('visible');
             }
 
             if (valid) {
-                var url = 'https://xivapi.com/character/search?name=' + escape(characterNameValue) + '&server=' + escape(serverNameValue);
+                var url = 'https://xivapi.com/linkshell/crossworld/search?name=' + escape(linkshellNameValue) + '&server=' + serverNameValue;
                 $.ajax({
                     type: 'GET',
                     url: url,
@@ -355,7 +338,7 @@
                                         return;
                                     } else {
                                         if (data.Results != null) {
-                                            displayCharacterSearch(data.Results);
+                                            displayLinkshellSearch(data.Results);
                                             $("#spin").addClass('invisible');
                                             $("#spin").removeClass('visible');
                                             return;
@@ -365,13 +348,13 @@
                             }
                         }
                         $('.alert').addClass('show');
-                        $('.alert').html('<strong>Error!</strong> We can not get the character data.');
+                        $('.alert').html('<strong>Error!</strong> We can not get the linkshell data.');
                         $("#spin").addClass('invisible');
                         $("#spin").removeClass('visible');
                     },
                     error: function (data) {
                         $('.alert').addClass('show');
-                        $('.alert').html('<strong>Error!</strong> We can not get the character data.');
+                        $('.alert').html('<strong>Error!</strong> We can not get the linkshell data.');
                         $("#spin").addClass('invisible');
                         $("#spin").removeClass('visible');
                     }
@@ -382,27 +365,29 @@
             }
         }
 
-        function displayCharacterSearch(data) {
+        function displayLinkshellSearch(data) {
             $("#search-results-table").removeClass('invisible');
             $("#search-results-table").addClass('visible');
 
             var html = '';
-
+            var dataCenter = $('#dataCenter');
+            var dataCenterValue = dataCenter.find(':selected').text();
             data.forEach(element => {
-                html += '<tr>\n';
-                html += '    <td><img src="' + element.Avatar + '" width="70px"></td>';
-                html += '    <td>' + element.Name + '</td>';
-                html += '    <td>' + element.Server + '</td>';
+                if (element.Server == dataCenterValue) {
+                    html += '<tr>\n';
+                    html += '    <td>' + element.Name + '</td>';
+                    html += '    <td>' + element.Server + '</td>';
 
-                html += '    <td><button class="btn btn-primary" onclick="openLodestone(\'' + element.ID + '\');">Lodestone</s></button>';                
-                html += '    <button class="btn btn-secondary" onclick="getFriends(\'' + element.ID + '\',\'' + element.Name + '\',\'' + element.Server + '\',\'' + element.Avatar + '\');">Friends</s></button></td>';
-                html += '</tr>\n';
+                    html += '    <td><button class="btn btn-primary" onclick="openLodestoneLinkShell(\'' + element.ID + '\');">Lodestone</s></button>';
+                    html += '    <button class="btn btn-secondary" onclick="getMembers(\'' + element.ID + '\',\'' + element.Name + '\',\'' + element.Server + '\');">Members</s></button></td>';
+                    html += '</tr>\n';
+                }
             });
 
             $("#search-results").html(html);
         }
 
-        function getFriends(id, name, server, avatar) {
+        function getMembers(id, name, server) {
             $("#search-results-table").removeClass('visible');
             $("#search-results-table").addClass('invisible');
             $("#search-results").html("");
@@ -413,12 +398,11 @@
             $("#character-detail").removeClass('invisible');
             $("#character-detail").addClass('visible');
 
-            $("#detail-img").attr("src", avatar);
             $("#detail-name").text(name);
             $("#detail-server").text(server);
 
 
-            var url = 'https://xivapi.com/character/' + id + '?data=FR';
+            var url = 'https://xivapi.com/linkshell/crossworld/' + id;
             $.ajax({
                 type: 'GET',
                 url: url,
@@ -426,25 +410,28 @@
                     if (data != null) {
                         $("#spin").addClass('invisible');
                         $("#spin").removeClass('visible');
-                        if (data.Friends != null) {
-                            if (data.Friends.length == 0) {
-                                $('.alert').addClass('show');
-                                $('.alert').html('<strong>Error!</strong> Character has no friends or they are not public in the Lodestone.');
-                                return;
-                            } else {
-                                processFriends(data.Friends);
-                                return;
+
+                        if (data.Linkshell != null) {
+                            if (data.Linkshell.Results != null) {
+                                if (data.Linkshell.Results.length == 0) {
+                                    $('.alert').addClass('show');
+                                    $('.alert').html('<strong>Error!</strong> Linkshell has no members or they are not public in the Lodestone.');
+                                    return;
+                                } else {
+                                    processMembers(data.Linkshell.Results);
+                                    return;
+                                }
                             }
                         }
                     }
                     $('.alert').addClass('show');
-                    $('.alert').html('<strong>Error!</strong> We can not get the friends for character.');
+                    $('.alert').html('<strong>Error!</strong> We can not get the members for the linkshell.');
                     $("#spin").addClass('invisible');
                     $("#spin").removeClass('visible');
                 },
                 error: function (data) {
                     $('.alert').addClass('show');
-                    $('.alert').html('<strong>Error!</strong> We can not get the friends for character.');
+                    $('.alert').html('<strong>Error!</strong> We can not get the members for the linkshell.');
                     $("#spin").addClass('invisible');
                     $("#spin").removeClass('visible');
                 }
@@ -452,65 +439,65 @@
         }
 
         const timeoutDelay = 50;
-        var savedFriends = new Array();
+        var savedMembers = new Array();
 
-        function doFriend(number) {
+        function doMember(number) {
 
-            var percent = (number + 1) / (savedFriends.length) * 100;
+            var percent = (number + 1) / (savedMembers.length) * 100;
             percent = percent.toFixed(2);
 
-            $("#progress-bar").html((number + 1) + " - " + savedFriends.length + " (" + percent + "%)");
+            $("#progress-bar").html((number + 1) + " - " + savedMembers.length + " (" + percent + "%)");
             $("#progress-bar").css({ 'width': percent + '%' });
 
-            if (number >= savedFriends.length) {
+            if (number >= savedMembers.length) {
                 $("#spin").removeClass('visible');
                 $("#spin").addClass('invisible');
 
                 $("#progress").removeClass('visible');
                 $("#progress").addClass('invisible');
 
-                savedFriends.sort((a, b) => {
+                savedMembers.sort((a, b) => {
                     return b.LastAchievement - a.LastAchievement;
                 });
 
-                displayFriends(savedFriends);
+                displayMembers(savedMembers);
                 return;
             }
 
-            var url = 'https://xivapi.com/character/' + savedFriends[number].ID + '?data=AC';
+            var url = 'https://xivapi.com/character/' + savedMembers[number].ID + '?data=AC';
 
             $.ajax({
                 type: 'GET',
                 url: url,
                 success: function (data) {
-                    savedFriends[number].error = true;
-                    savedFriends[number].LastAchievement = 0;
+                    savedMembers[number].error = true;
+                    savedMembers[number].LastAchievement = 0;
                     if (data.Achievements != null) {
                         if (data.Achievements.List != null) {
                             data.Achievements.List.sort((a, b) => {
                                 return b.Date - a.Date;
                             });
                             if (data.Achievements.List.length) {
-                                savedFriends[number].LastAchievement = data.Achievements.List[0].Date;
-                                savedFriends[number].error = false;
+                                savedMembers[number].LastAchievement = data.Achievements.List[0].Date;
+                                savedMembers[number].error = false;
                             }
                         }
                     }
                     setTimeout(() => {
-                        doFriend(number + 1);
+                        doMember(number + 1);
                     }, timeoutDelay);
                 },
                 error: function (data) {
-                    savedFriends[number].error = true;
-                    savedFriends[number].LastAchievement = 0;
+                    savedMembers[number].error = true;
+                    savedMembers[number].LastAchievement = 0;
                     setTimeout(() => {
-                        doFriend(number + 1);
+                        doMember(number + 1);
                     }, timeoutDelay);
                 }
             });
         }
 
-        function processFriends(friends) {
+        function processMembers(members) {
             $("#spin").removeClass('invisible');
             $("#spin").addClass('visible');
 
@@ -518,11 +505,11 @@
             $("#progress").addClass('visible');
             $("#progress-bar").css({ 'width': '0%' });
 
-            savedFriends = friends;
-            doFriend(0);
+            savedMembers = members;
+            doMember(0);
         }
 
-        function displayFriends(data) {
+        function displayMembers(data) {
             var html = '';
 
             data.forEach(element => {
@@ -552,6 +539,12 @@
         function openLodestone(id) {
             window.open(
                 'https://eu.finalfantasyxiv.com/lodestone/character/' + id,
+                '_blank'
+            );
+        }
+        function openLodestoneLinkShell(id) {
+            window.open(
+                'https://eu.finalfantasyxiv.com/lodestone/crossworld_linkshell/' + id,
                 '_blank'
             );
         }
